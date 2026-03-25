@@ -1,5 +1,5 @@
 """
-Notebook Generator — uses gpt-4o to analyze a research paper and generates
+Notebook Generator — uses Gemini 2.5 Flash to analyze a research paper and generates
 a production-quality Google Colab notebook via nbformat.
 """
 from __future__ import annotations
@@ -9,7 +9,7 @@ import json
 from typing import Callable, Awaitable
 
 import nbformat
-from openai import AsyncOpenAI
+from google import genai
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -105,17 +105,17 @@ async def generate_notebook(
     progress: Callable[[str], Awaitable[None]],
 ) -> tuple:
     """
-    Analyze the paper with gpt-4o and build a research-grade .ipynb notebook.
+    Analyze the paper with Gemini 2.5 Flash and build a research-grade .ipynb notebook.
 
     Args:
         paper:    Parsed paper dict from pdf_parser.parse_pdf()
-        api_key:  User's OpenAI API key (forwarded per-request, never stored)
+        api_key:  User's Gemini API key (forwarded per-request, never stored)
         progress: Async callback to push progress messages to the SSE stream
 
     Returns:
         (NotebookNode, summary_bullets: list[str])
     """
-    client = AsyncOpenAI(api_key=api_key)
+    client = genai.Client(api_key=api_key)
 
     await progress("Analyzing core algorithms and theoretical contributions...")
     await asyncio.sleep(0)  # yield to event loop
@@ -133,20 +133,21 @@ Full Paper Text (first 12000 chars):
 
     await progress("Mapping methodology to implementable components...")
 
-    response = await client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_content},
-        ],
-        response_format={"type": "json_object"},
-        max_tokens=8000,
-        temperature=0.2,
+    response = await asyncio.to_thread(
+        client.models.generate_content,
+        model="gemini-2.5-flash",
+        contents=user_content,
+        config={
+            "system_instruction": SYSTEM_PROMPT,
+            "response_mime_type": "application/json",
+            "temperature": 0.2,
+            "max_output_tokens": 65536,
+        },
     )
 
     await progress("Assembling notebook cells...")
 
-    result = json.loads(response.choices[0].message.content)
+    result = json.loads(response.text)
     notebook = build_notebook(result["cells"])
     summary_bullets = result.get("summary_bullets", [])
 

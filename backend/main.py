@@ -58,9 +58,9 @@ async def generate(
     file: UploadFile = File(...),
 ) -> dict:
     """
-    Accept a research paper PDF and an OpenAI API key.
+    Accept a research paper PDF and a Gemini API key.
     Returns a job_id immediately; client polls /stream/{job_id} for progress.
-    The API key is forwarded only to OpenAI and never stored.
+    The API key is forwarded only to Gemini and never stored.
     """
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")

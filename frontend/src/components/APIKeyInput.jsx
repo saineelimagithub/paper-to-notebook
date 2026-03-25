@@ -6,7 +6,7 @@ export default function APIKeyInput({ value, onChange }) {
   return (
     <div data-testid="api-key-input-container" className="space-y-2">
       <label className="block text-sm font-medium text-text-muted font-mono uppercase tracking-widest">
-        OpenAI API Key
+        Gemini API Key
       </label>
       <div className="relative">
         <input
@@ -14,7 +14,7 @@ export default function APIKeyInput({ value, onChange }) {
           type={visible ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="sk-..."
+          placeholder="AIza..."
           className="w-full bg-surface-2 border border-border rounded-lg px-4 py-3 pr-24 text-text-primary font-mono text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors placeholder-text-muted/40"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">

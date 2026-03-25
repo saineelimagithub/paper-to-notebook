@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../backend"))
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import nbformat
 import pytest
@@ -33,7 +33,7 @@ SAMPLE_CELLS = [
     {"type": "markdown", "source": "## Summary\nConclusion here."},
 ]
 
-SAMPLE_OPENAI_RESPONSE = {
+SAMPLE_GEMINI_RESPONSE = {
     "summary_bullets": [
         "Implements the core attention mechanism",
         "Includes synthetic dataset generation",
@@ -111,23 +111,24 @@ def test_build_notebook_empty_cells():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# generate_notebook() tests (mocked OpenAI)
+# generate_notebook() tests (mocked Gemini)
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+def _mock_gemini_response():
+    """Create a mock Gemini response with .text attribute."""
+    mock_response = MagicMock()
+    mock_response.text = json.dumps(SAMPLE_GEMINI_RESPONSE)
+    return mock_response
 
 
 @pytest.mark.asyncio
 async def test_generate_notebook_returns_tuple():
     """generate_notebook() must return (NotebookNode, list[str])."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = json.dumps(SAMPLE_OPENAI_RESPONSE)
-
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-
-    with patch("notebook_generator.AsyncOpenAI") as mock_client_cls:
-        mock_client = AsyncMock()
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-        mock_client_cls.return_value = mock_client
+    with patch("notebook_generator.genai") as mock_genai:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = _mock_gemini_response()
+        mock_genai.Client.return_value = mock_client
 
         progress_calls = []
 
@@ -140,7 +141,7 @@ async def test_generate_notebook_returns_tuple():
             "full_text": "Paper text here...",
         }
 
-        nb, bullets = await generate_notebook(paper, "sk-test123", mock_progress)
+        nb, bullets = await generate_notebook(paper, "AIzaTest123", mock_progress)
 
     assert isinstance(nb, nbformat.NotebookNode)
     assert isinstance(bullets, list)
@@ -149,15 +150,10 @@ async def test_generate_notebook_returns_tuple():
 @pytest.mark.asyncio
 async def test_generate_notebook_calls_progress():
     """generate_notebook() must call progress callback at least once."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = json.dumps(SAMPLE_OPENAI_RESPONSE)
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-
-    with patch("notebook_generator.AsyncOpenAI") as mock_client_cls:
-        mock_client = AsyncMock()
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-        mock_client_cls.return_value = mock_client
+    with patch("notebook_generator.genai") as mock_genai:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = _mock_gemini_response()
+        mock_genai.Client.return_value = mock_client
 
         progress_calls = []
 
@@ -165,29 +161,24 @@ async def test_generate_notebook_calls_progress():
             progress_calls.append(msg)
 
         paper = {"title": "Test Paper", "abstract": "Test abstract", "full_text": "..."}
-        await generate_notebook(paper, "sk-test", mock_progress)
+        await generate_notebook(paper, "AIzaTest", mock_progress)
 
     assert len(progress_calls) > 0
 
 
 @pytest.mark.asyncio
 async def test_generate_notebook_summary_bullets():
-    """generate_notebook() must return exactly 3 summary bullets from OpenAI response."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = json.dumps(SAMPLE_OPENAI_RESPONSE)
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-
-    with patch("notebook_generator.AsyncOpenAI") as mock_client_cls:
-        mock_client = AsyncMock()
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-        mock_client_cls.return_value = mock_client
+    """generate_notebook() must return exactly 3 summary bullets from Gemini response."""
+    with patch("notebook_generator.genai") as mock_genai:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = _mock_gemini_response()
+        mock_genai.Client.return_value = mock_client
 
         async def mock_progress(msg: str) -> None:
             pass
 
         paper = {"title": "Test", "abstract": "Abstract", "full_text": "..."}
-        nb, bullets = await generate_notebook(paper, "sk-test", mock_progress)
+        nb, bullets = await generate_notebook(paper, "AIzaTest", mock_progress)
 
     assert len(bullets) == 3
     assert all(isinstance(b, str) for b in bullets)
@@ -195,46 +186,34 @@ async def test_generate_notebook_summary_bullets():
 
 @pytest.mark.asyncio
 async def test_generate_notebook_passes_api_key():
-    """generate_notebook() must pass the api_key to AsyncOpenAI constructor."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = json.dumps(SAMPLE_OPENAI_RESPONSE)
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-
-    with patch("notebook_generator.AsyncOpenAI") as mock_client_cls:
-        mock_client = AsyncMock()
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-        mock_client_cls.return_value = mock_client
+    """generate_notebook() must pass the api_key to genai.Client constructor."""
+    with patch("notebook_generator.genai") as mock_genai:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = _mock_gemini_response()
+        mock_genai.Client.return_value = mock_client
 
         async def mock_progress(msg: str) -> None:
             pass
 
         paper = {"title": "Test", "abstract": "Abstract", "full_text": "..."}
-        await generate_notebook(paper, "sk-real-key-123", mock_progress)
+        await generate_notebook(paper, "AIzaRealKey123", mock_progress)
 
-        mock_client_cls.assert_called_once_with(api_key="sk-real-key-123")
+        mock_genai.Client.assert_called_once_with(api_key="AIzaRealKey123")
 
 
 @pytest.mark.asyncio
-async def test_generate_notebook_uses_gpt4o():
-    """generate_notebook() must use gpt-4o model."""
-    mock_choice = MagicMock()
-    mock_choice.message.content = json.dumps(SAMPLE_OPENAI_RESPONSE)
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-
-    with patch("notebook_generator.AsyncOpenAI") as mock_client_cls:
-        mock_client = AsyncMock()
-        mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
-        mock_client_cls.return_value = mock_client
+async def test_generate_notebook_uses_gemini_flash():
+    """generate_notebook() must use gemini-2.5-flash model."""
+    with patch("notebook_generator.genai") as mock_genai:
+        mock_client = MagicMock()
+        mock_client.models.generate_content.return_value = _mock_gemini_response()
+        mock_genai.Client.return_value = mock_client
 
         async def mock_progress(msg: str) -> None:
             pass
 
         paper = {"title": "Test", "abstract": "Abstract", "full_text": "..."}
-        await generate_notebook(paper, "sk-test", mock_progress)
+        await generate_notebook(paper, "AIzaTest", mock_progress)
 
-        call_kwargs = mock_client.chat.completions.create.call_args
-        assert call_kwargs.kwargs.get("model") == "gpt-4o" or (
-            call_kwargs.args and call_kwargs.args[0] == "gpt-4o"
-        )
+        call_kwargs = mock_client.models.generate_content.call_args
+        assert call_kwargs.kwargs.get("model") == "gemini-2.5-flash"
