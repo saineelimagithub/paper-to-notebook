@@ -53,9 +53,10 @@
 
 ---
 
-- [ ] Task 8: Replace raw exception leaking with safe error handler (P1)
+- [x] Task 8: Replace raw exception leaking with safe error handler (P1)
   - Acceptance: New module `error_handler.py` with `safe_error_message(exc: Exception) -> str` that returns generic user-facing messages: `"Generation failed. Please try again."` for most errors, `"Invalid API key."` for auth errors, `"PDF could not be parsed."` for parsing errors; full exception is logged server-side via Python `logging` at ERROR level with traceback; `_run_generation()` in main.py uses `safe_error_message()` for the SSE error event; test verifies that exception details (file paths, stack traces) never appear in SSE error messages
-  - Files: backend/error_handler.py, backend/main.py, backend/tests/test_error_handler.py
+  - Files: backend/error_handler.py, backend/main.py, tests/backend/test_error_handler.py
+  - Completed: 2026-03-26 — Classifies errors into auth/PDF/generic categories; logs full traceback server-side; never leaks paths, keys, or stack traces; 10 new tests, 100 total passing
 
 ---
 

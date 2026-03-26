@@ -163,10 +163,11 @@ async def _run_generation(job_id: str, pdf_bytes: bytes, api_key: str) -> None:
         ))
 
     except Exception as exc:
+        from error_handler import safe_error_message
         job.status = JobStatus.ERROR
         await job.push(JobEvent(
             type="error",
-            message=str(exc),
+            message=safe_error_message(exc),
             elapsed=round(time.monotonic() - start, 1),
         ))
 
