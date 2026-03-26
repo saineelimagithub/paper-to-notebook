@@ -4,6 +4,8 @@ export default function PDFUpload({ onSubmit, apiKey, disabled }) {
   const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
 
+  const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+
   const handleDrop = useCallback((e) => {
     e.preventDefault();
     setDragging(false);
@@ -16,6 +18,8 @@ export default function PDFUpload({ onSubmit, apiKey, disabled }) {
     if (selected?.type === "application/pdf") setFile(selected);
   };
 
+  const fileOversize = file && file.size > MAX_SIZE;
+
   const handleSubmit = async () => {
     if (!file || !apiKey) return;
     const formData = new FormData();
@@ -24,7 +28,7 @@ export default function PDFUpload({ onSubmit, apiKey, disabled }) {
     onSubmit(formData);
   };
 
-  const canSubmit = !!file && !!apiKey && !disabled;
+  const canSubmit = !!file && !!apiKey && !disabled && !fileOversize;
 
   return (
     <div data-testid="pdf-upload-container" className="space-y-4">
@@ -52,8 +56,9 @@ export default function PDFUpload({ onSubmit, apiKey, disabled }) {
         {file ? (
           <div data-testid="file-info" className="space-y-1">
             <p className="text-text-primary font-mono text-sm">{file.name}</p>
-            <p className="text-text-muted text-xs">
+            <p className={`text-xs ${fileOversize ? "text-danger" : "text-text-muted"}`}>
               {(file.size / 1024 / 1024).toFixed(2)} MB
+              {fileOversize && " — exceeds 20MB limit"}
             </p>
           </div>
         ) : (

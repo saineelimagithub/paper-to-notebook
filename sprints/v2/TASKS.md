@@ -11,9 +11,10 @@
 
 ---
 
-- [ ] Task 2: Enforce 20MB file size limit on uploads (P0)
+- [x] Task 2: Enforce 20MB file size limit on uploads (P0)
   - Acceptance: `POST /generate` with a file > 20MB returns HTTP 413 with `{"detail": "PDF exceeds 20MB limit."}`; files under 20MB still work normally; frontend shows file size and disables submit for files > 20MB; tests cover both accept and reject cases
-  - Files: backend/main.py, frontend/src/components/PDFUpload.jsx, backend/tests/test_upload_limits.py
+  - Files: backend/main.py, frontend/src/components/PDFUpload.jsx, tests/backend/test_upload_limits.py
+  - Completed: 2026-03-26 — Server-side 20MB check returns 413; frontend disables submit + shows red warning for oversized files; 3 new tests, 54 total passing
 
 ---
 

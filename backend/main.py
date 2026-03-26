@@ -85,7 +85,10 @@ async def generate(
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 
+    MAX_PDF_SIZE = 20 * 1024 * 1024  # 20 MB
     pdf_bytes = await file.read()
+    if len(pdf_bytes) > MAX_PDF_SIZE:
+        raise HTTPException(status_code=413, detail="PDF exceeds 20MB limit.")
     job_id = str(uuid.uuid4())
     job = create_job(job_id)
 
