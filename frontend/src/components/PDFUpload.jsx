@@ -23,9 +23,8 @@ export default function PDFUpload({ onSubmit, apiKey, disabled }) {
   const handleSubmit = async () => {
     if (!file || !apiKey) return;
     const formData = new FormData();
-    formData.append("api_key", apiKey);
     formData.append("file", file);
-    onSubmit(formData);
+    onSubmit(formData, apiKey);
   };
 
   const canSubmit = !!file && !!apiKey && !disabled && !fileOversize;

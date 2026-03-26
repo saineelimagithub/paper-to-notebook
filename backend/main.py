@@ -10,7 +10,7 @@ import uuid
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile, Request
+from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -74,14 +74,15 @@ async def health() -> dict:
 @app.post("/generate")
 async def generate(
     background_tasks: BackgroundTasks,
-    api_key: str = Form(...),
     file: UploadFile = File(...),
+    x_api_key: str = Header(..., alias="X-Api-Key"),
 ) -> dict:
     """
-    Accept a research paper PDF and a Gemini API key.
+    Accept a research paper PDF and a Gemini API key (via X-Api-Key header).
     Returns a job_id immediately; client polls /stream/{job_id} for progress.
     The API key is forwarded only to Gemini and never stored.
     """
+    api_key = x_api_key
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are accepted.")
 

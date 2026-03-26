@@ -25,7 +25,7 @@ def test_small_pdf_accepted():
 
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test-key"},
+        headers={"X-Api-Key": "sk-test-key"},
         files={"file": ("paper.pdf", pdf_bytes, "application/pdf")},
     )
     assert response.status_code == 200
@@ -39,7 +39,7 @@ def test_oversized_file_rejected_with_413():
 
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test-key"},
+        headers={"X-Api-Key": "sk-test-key"},
         files={"file": ("huge.pdf", oversized_bytes, "application/pdf")},
     )
     assert response.status_code == 413
@@ -62,7 +62,7 @@ def test_exactly_20mb_accepted():
     assert len(pdf_bytes) < 20 * 1024 * 1024
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test-key"},
+        headers={"X-Api-Key": "sk-test-key"},
         files={"file": ("paper.pdf", pdf_bytes, "application/pdf")},
     )
     assert response.status_code == 200

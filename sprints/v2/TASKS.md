@@ -18,9 +18,10 @@
 
 ---
 
-- [ ] Task 3: Move API key from form body to X-Api-Key header (P0)
+- [x] Task 3: Move API key from form body to X-Api-Key header (P0)
   - Acceptance: `POST /generate` reads API key from `X-Api-Key` request header instead of form field; frontend sends key via `headers: {"X-Api-Key": apiKey}` on the fetch call; old form-body `api_key` field is removed; all existing tests updated; new test verifies 422 when header is missing
-  - Files: backend/main.py, frontend/src/components/PDFUpload.jsx, frontend/src/App.jsx, backend/tests/test_integration.py
+  - Files: backend/main.py, frontend/src/components/PDFUpload.jsx, frontend/src/App.jsx, tests/backend/test_integration.py
+  - Completed: 2026-03-26 — Backend uses Header() for X-Api-Key; frontend sends via headers; all integration + upload tests updated; 54 total passing
 
 ---
 

@@ -15,10 +15,14 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (formData, key) => {
     try {
       setAppState("processing");
-      const res = await fetch("/generate", { method: "POST", body: formData });
+      const res = await fetch("/generate", {
+        method: "POST",
+        headers: { "X-Api-Key": key },
+        body: formData,
+      });
       if (!res.ok) throw new Error(await res.text());
       const { job_id } = await res.json();
       setJobId(job_id);

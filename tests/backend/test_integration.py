@@ -57,7 +57,7 @@ def test_generate_non_pdf_returns_400():
     """POST /generate with a non-PDF file must return 400."""
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test123"},
+        headers={"X-Api-Key": "sk-test123"},
         files={"file": ("test.txt", b"not a pdf", "text/plain")},
     )
     assert response.status_code == 400
@@ -67,7 +67,7 @@ def test_generate_non_pdf_extension_returns_400():
     """POST /generate with a .txt extension must return 400."""
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test"},
+        headers={"X-Api-Key": "sk-test"},
         files={"file": ("report.txt", b"some content", "application/pdf")},
     )
     assert response.status_code == 400
@@ -85,7 +85,7 @@ def test_generate_valid_pdf_returns_job_id():
 
     response = client.post(
         "/generate",
-        data={"api_key": "sk-test-key"},
+        headers={"X-Api-Key": "sk-test-key"},
         files={"file": ("paper.pdf", pdf_bytes, "application/pdf")},
     )
     assert response.status_code == 200
