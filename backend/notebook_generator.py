@@ -115,12 +115,15 @@ async def generate_notebook(
     Returns:
         (NotebookNode, summary_bullets: list[str])
     """
+    from input_sanitizer import sanitize_paper_text
+    paper = sanitize_paper_text(paper)
+
     client = genai.Client(api_key=api_key)
 
     await progress("Analyzing core algorithms and theoretical contributions...")
     await asyncio.sleep(0)  # yield to event loop
 
-    # Build user message with paper content
+    # Build user message with sanitized paper content
     user_content = f"""
 Paper Title: {paper.get('title', 'Unknown')}
 

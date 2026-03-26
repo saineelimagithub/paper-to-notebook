@@ -32,9 +32,10 @@
 
 ---
 
-- [ ] Task 5: Build input sanitizer for PDF text before Gemini (P0)
+- [x] Task 5: Build input sanitizer for PDF text before Gemini (P0)
   - Acceptance: New module `input_sanitizer.py` with `sanitize_paper_text(paper: dict) -> dict` that: (a) strips Unicode control characters (U+200B–U+200F, U+202A–U+202E, U+2060–U+2064, U+FEFF), (b) detects and neutralizes prompt injection patterns — lines containing "ignore previous instructions", "ignore all instructions", "you are now", "new instructions:", "system:", "ADMIN:", or similar role-override phrases are prefixed with `[USER TEXT]:` to disambiguate from real instructions, (c) truncates `full_text` to 12000 chars (enforced here, not just in notebook_generator); returns sanitized copy of paper dict; tests cover each sanitization rule with adversarial examples
-  - Files: backend/input_sanitizer.py, backend/tests/test_input_sanitizer.py
+  - Files: backend/input_sanitizer.py, backend/notebook_generator.py, tests/backend/test_input_sanitizer.py
+  - Completed: 2026-03-26 — Strips control chars, neutralizes 7+ injection patterns, truncates to 12k chars; wired into notebook_generator; 15 new tests, 72 total passing
 
 ---
 
