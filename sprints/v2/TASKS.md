@@ -60,9 +60,10 @@
 
 ---
 
-- [ ] Task 9: Add TTL-based job cleanup and max concurrent job cap (P1)
+- [x] Task 9: Add TTL-based job cleanup and max concurrent job cap (P1)
   - Acceptance: Background task runs every 60 seconds and evicts jobs older than 30 minutes from the in-memory store; max concurrent jobs capped at 20 — `/generate` returns HTTP 503 `{"detail": "Server busy. Try again shortly."}` when cap is reached; `Job` dataclass gets a `created_at: float` field (time.monotonic); test verifies: old jobs are cleaned up, cap is enforced, active jobs are not evicted
-  - Files: backend/job_store.py, backend/main.py, backend/tests/test_job_cleanup.py
+  - Files: backend/job_store.py, backend/main.py, tests/backend/test_job_cleanup.py
+  - Completed: 2026-03-26 — TTL cleanup every 60s evicts jobs > 30 min; max 20 concurrent jobs returns 503; created_at field on Job; periodic cleanup via lifespan task; 7 new tests, 107 total passing
 
 ---
 

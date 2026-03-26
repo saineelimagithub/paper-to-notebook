@@ -21,7 +21,7 @@ from starlette.responses import Response
 
 load_dotenv()
 
-from job_store import JobEvent, JobStatus, create_job, get_job  # noqa: E402
+from job_store import JobEvent, JobStatus, create_job, get_job, cleanup_stale_jobs  # noqa: E402
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -29,9 +29,18 @@ limiter = Limiter(key_func=get_remote_address)
 # App factory
 # ---------------------------------------------------------------------------
 
+async def _periodic_cleanup():
+    """Background task that evicts stale jobs every 60 seconds."""
+    while True:
+        await asyncio.sleep(60)
+        cleanup_stale_jobs()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    task = asyncio.create_task(_periodic_cleanup())
     yield
+    task.cancel()
 
 
 app = FastAPI(title="Paper → Notebook Generator", version="1.0.0", lifespan=lifespan)
@@ -108,6 +117,8 @@ async def generate(
         raise HTTPException(status_code=413, detail="PDF exceeds 20MB limit.")
     job_id = str(uuid.uuid4())
     job = create_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=503, detail="Server busy. Try again shortly.")
 
     background_tasks.add_task(_run_generation, job_id, pdf_bytes, api_key)
 
