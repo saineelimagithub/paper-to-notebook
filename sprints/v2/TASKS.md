@@ -25,9 +25,10 @@
 
 ---
 
-- [ ] Task 4: Add rate limiting with slowapi (P0)
+- [x] Task 4: Add rate limiting with slowapi (P0)
   - Acceptance: `pip install slowapi` added to requirements.txt; `/generate` limited to 5 requests/minute per IP; `/publish` limited to 10 requests/minute per IP; exceeding limit returns HTTP 429 with `{"detail": "Rate limit exceeded. Try again in X seconds."}`; test verifies 429 after exceeding limit
-  - Files: backend/main.py, backend/requirements.txt, backend/tests/test_rate_limiting.py
+  - Files: backend/main.py, backend/requirements.txt, tests/backend/test_rate_limiting.py
+  - Completed: 2026-03-26 — slowapi with per-IP limits (5/min generate, 10/min publish); custom 429 handler; 3 new tests, 57 total passing
 
 ---
 

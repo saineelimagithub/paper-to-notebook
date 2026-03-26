@@ -12,13 +12,18 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
 load_dotenv()
 
 from job_store import JobEvent, JobStatus, create_job, get_job  # noqa: E402
+
+limiter = Limiter(key_func=get_remote_address)
 
 # ---------------------------------------------------------------------------
 # App factory
@@ -30,6 +35,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Paper → Notebook Generator", version="1.0.0", lifespan=lifespan)
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": f"Rate limit exceeded. Try again in {exc.detail} seconds."},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -72,7 +86,9 @@ async def health() -> dict:
 # ---------------------------------------------------------------------------
 
 @app.post("/generate")
+@limiter.limit("5/minute")
 async def generate(
+    request: Request,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     x_api_key: str = Header(..., alias="X-Api-Key"),
@@ -181,7 +197,9 @@ async def stream_job(job_id: str) -> StreamingResponse:
 # ---------------------------------------------------------------------------
 
 @app.post("/publish")
+@limiter.limit("10/minute")
 async def publish(
+    request: Request,
     notebook_b64: str = Form(...),
     title: str = Form(...),
 ) -> dict:
