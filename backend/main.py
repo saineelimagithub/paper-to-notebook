@@ -149,6 +149,9 @@ async def _run_generation(job_id: str, pdf_bytes: bytes, api_key: str) -> None:
         from gist_publisher import publish_to_gist
         colab_url = publish_to_gist(notebook_json, paper.get("title", "Research Paper Notebook"))
 
+        if findings:
+            await progress(f"Security scan: {len(findings)} finding(s) detected in generated code.")
+
         job.status = JobStatus.DONE
         await job.push(JobEvent(
             type="done",
@@ -156,6 +159,7 @@ async def _run_generation(job_id: str, pdf_bytes: bytes, api_key: str) -> None:
             elapsed=round(time.monotonic() - start, 1),
             notebook_b64=notebook_b64,
             colab_url=colab_url,
+            findings=findings,
         ))
 
     except Exception as exc:
@@ -187,6 +191,7 @@ async def stream_job(job_id: str) -> StreamingResponse:
             if event.type == "done":
                 payload["notebook_b64"] = event.notebook_b64
                 payload["colab_url"] = event.colab_url
+                payload["findings"] = event.findings
             yield f"data: {json.dumps(payload)}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

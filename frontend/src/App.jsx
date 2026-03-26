@@ -37,6 +37,7 @@ export default function App() {
       notebookB64: event.notebook_b64,
       colabUrl: event.colab_url,
       bullets: JSON.parse(event.message || "[]"),
+      findings: event.findings || [],
     });
     setAppState("done");
   };
@@ -100,6 +101,7 @@ export default function App() {
               bullets={result.bullets}
               notebookB64={result.notebookB64}
               colabUrl={result.colabUrl}
+              findings={result.findings}
               onReset={handleReset}
             />
           )}

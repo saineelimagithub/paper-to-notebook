@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 
-export default function ResultCard({ title, bullets, notebookB64, colabUrl, onReset }) {
+export default function ResultCard({ title, bullets, notebookB64, colabUrl, findings, onReset }) {
+  const [acknowledged, setAcknowledged] = useState(false);
+  const hasFindings = findings && findings.length > 0;
+
   const handleDownload = () => {
     const bytes = atob(notebookB64);
     const arr = new Uint8Array(bytes.length);
@@ -40,26 +43,71 @@ export default function ResultCard({ title, bullets, notebookB64, colabUrl, onRe
         </ul>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          data-testid="download-btn"
-          onClick={handleDownload}
-          className="flex-1 py-3 px-4 bg-accent text-surface rounded-lg font-mono text-sm font-medium hover:bg-accent/90 transition-colors"
+      {/* Security warnings banner */}
+      {hasFindings && (
+        <div
+          data-testid="security-warnings"
+          className="border border-yellow-500/40 rounded-lg p-4 bg-yellow-500/5 space-y-3"
         >
-          Download .ipynb
-        </button>
-        {colabUrl && (
-          <a
-            data-testid="colab-btn"
-            href={colabUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 py-3 px-4 border border-border text-text-primary rounded-lg font-mono text-sm font-medium hover:border-accent/50 transition-colors text-center"
+          <p className="text-yellow-400 font-mono text-xs uppercase tracking-widest font-medium">
+            Security Warnings ({findings.length})
+          </p>
+          <ul className="space-y-1.5">
+            {findings.map((f, i) => (
+              <li key={i} className="flex gap-2 text-sm">
+                <span className={`shrink-0 font-mono text-xs mt-0.5 ${
+                  f.severity === "critical" ? "text-danger" : "text-yellow-400"
+                }`}>
+                  [{f.severity}]
+                </span>
+                <span className="text-text-muted">
+                  Cell {f.cell_index}, line {f.line}: {f.description}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {!acknowledged && (
+            <button
+              data-testid="acknowledge-warnings-btn"
+              onClick={() => setAcknowledged(true)}
+              className="text-yellow-400 font-mono text-xs hover:text-yellow-300 transition-colors underline"
+            >
+              I understand the risks, show download options
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Download / Colab buttons — hidden behind acknowledgement if findings exist */}
+      {(!hasFindings || acknowledged) && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            data-testid="download-btn"
+            onClick={handleDownload}
+            className="flex-1 py-3 px-4 bg-accent text-surface rounded-lg font-mono text-sm font-medium hover:bg-accent/90 transition-colors"
           >
-            Open in Colab ↗
-          </a>
-        )}
-      </div>
+            Download .ipynb
+          </button>
+          {colabUrl && (
+            <a
+              data-testid="colab-btn"
+              href={colabUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-3 px-4 border border-border text-text-primary rounded-lg font-mono text-sm font-medium hover:border-accent/50 transition-colors text-center"
+            >
+              Open in Colab ↗
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* "Review warnings" button when findings exist but not yet acknowledged */}
+      {hasFindings && !acknowledged && (
+        <p className="text-text-muted font-mono text-xs text-center">
+          Review security warnings above before downloading.
+        </p>
+      )}
 
       <button
         data-testid="reset-btn"

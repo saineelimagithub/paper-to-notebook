@@ -24,6 +24,7 @@ class JobEvent:
     elapsed: float = 0.0
     notebook_b64: str = ""
     colab_url: str | None = None
+    findings: list = field(default_factory=list)
 
 
 @dataclass

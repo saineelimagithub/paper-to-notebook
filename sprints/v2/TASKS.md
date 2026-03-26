@@ -46,9 +46,10 @@
 
 ---
 
-- [ ] Task 7: Integrate scanner warnings into frontend result card (P1)
+- [x] Task 7: Integrate scanner warnings into frontend result card (P1)
   - Acceptance: If the backend returns security findings with the `done` SSE event, the ResultCard displays a yellow warning banner listing each finding with cell index and description; if no findings, no banner is shown; warning banner has a "I understand, download anyway" flow — download button is initially replaced by "Review warnings" until user acknowledges; test verifies warning banner renders when findings are present
-  - Files: frontend/src/components/ResultCard.jsx, frontend/src/App.jsx, backend/main.py (add `findings` field to done event), backend/job_store.py (add findings to JobEvent), tests/e2e/security_warnings.spec.js
+  - Files: frontend/src/components/ResultCard.jsx, frontend/src/App.jsx, backend/main.py, backend/job_store.py
+  - Completed: 2026-03-26 — Added findings field to JobEvent + SSE payload; ResultCard shows yellow warning banner with acknowledge-before-download flow; 90 total passing
 
 ---
 
