@@ -138,7 +138,7 @@ async def _run_generation(job_id: str, pdf_bytes: bytes, api_key: str) -> None:
         await progress("Analyzing core algorithms and theoretical contributions...")
 
         from notebook_generator import generate_notebook
-        notebook_node, summary_bullets = await generate_notebook(paper, api_key, progress)
+        notebook_node, summary_bullets, findings = await generate_notebook(paper, api_key, progress)
 
         await progress("Assembling notebook structure...")
         import nbformat

@@ -39,9 +39,10 @@
 
 ---
 
-- [ ] Task 6: Build post-generation notebook scanner (P0)
+- [x] Task 6: Build post-generation notebook scanner (P0)
   - Acceptance: New module `notebook_scanner.py` with `scan_notebook(cells: list[dict]) -> list[dict]` that inspects every code cell and returns a list of findings, each `{"cell_index": int, "line": int, "pattern": str, "severity": "critical"|"warning", "description": str}`; detects: `os.system`, `subprocess.run/call/Popen`, `eval()`, `exec()`, `__import__()`, `open()` targeting `/etc/`, `.env`, `.ssh`, `~`, `requests.get/post` to non-localhost URLs, `urllib.request`, `socket.connect`, `shutil.rmtree`, `os.remove`; returns empty list if notebook is clean; `generate_notebook()` in notebook_generator.py calls scanner after build and includes findings in return value; tests cover at least 8 distinct malicious patterns
-  - Files: backend/notebook_scanner.py, backend/notebook_generator.py, backend/tests/test_notebook_scanner.py
+  - Files: backend/notebook_scanner.py, backend/notebook_generator.py, tests/backend/test_notebook_scanner.py
+  - Completed: 2026-03-26 — 12 detection rules (os.system, subprocess, eval, exec, __import__, sensitive open, requests, urllib, socket, shutil.rmtree, os.remove); wired into generate_notebook returning 3-tuple; 18 new tests, 90 total passing
 
 ---
 

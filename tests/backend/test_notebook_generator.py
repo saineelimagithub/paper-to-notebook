@@ -141,10 +141,11 @@ async def test_generate_notebook_returns_tuple():
             "full_text": "Paper text here...",
         }
 
-        nb, bullets = await generate_notebook(paper, "AIzaTest123", mock_progress)
+        nb, bullets, findings = await generate_notebook(paper, "AIzaTest123", mock_progress)
 
     assert isinstance(nb, nbformat.NotebookNode)
     assert isinstance(bullets, list)
+    assert isinstance(findings, list)
 
 
 @pytest.mark.asyncio
@@ -178,7 +179,7 @@ async def test_generate_notebook_summary_bullets():
             pass
 
         paper = {"title": "Test", "abstract": "Abstract", "full_text": "..."}
-        nb, bullets = await generate_notebook(paper, "AIzaTest", mock_progress)
+        nb, bullets, findings = await generate_notebook(paper, "AIzaTest", mock_progress)
 
     assert len(bullets) == 3
     assert all(isinstance(b, str) for b in bullets)

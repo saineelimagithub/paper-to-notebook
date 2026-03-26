@@ -154,7 +154,10 @@ Full Paper Text (first 12000 chars):
     notebook = build_notebook(result["cells"])
     summary_bullets = result.get("summary_bullets", [])
 
-    return notebook, summary_bullets
+    from notebook_scanner import scan_notebook
+    findings = scan_notebook(result["cells"])
+
+    return notebook, summary_bullets, findings
 
 
 # ─────────────────────────────────────────────────────────────────────────────
