@@ -189,6 +189,12 @@ async def _run_generation(job_id: str, pdf_bytes: bytes, api_key: str) -> None:
 
 @app.get("/stream/{job_id}")
 async def stream_job(job_id: str) -> StreamingResponse:
+    # Validate UUID format
+    try:
+        uuid.UUID(job_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid job ID format.")
+
     job = get_job(job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found.")

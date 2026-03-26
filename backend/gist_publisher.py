@@ -31,7 +31,7 @@ def publish_to_gist(notebook_json: str, title: str) -> str | None:
 
     payload = {
         "description": f"Research Paper Notebook: {title}",
-        "public": True,
+        "public": False,
         "files": {
             filename: {"content": notebook_json},
         },

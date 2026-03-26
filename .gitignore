@@ -4,7 +4,8 @@ __pycache__/
 *.pyo
 .venv/
 venv/
-backend/.env
+*.env
+!*.env.example
 
 # Node
 node_modules/

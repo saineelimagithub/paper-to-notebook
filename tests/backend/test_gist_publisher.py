@@ -81,7 +81,7 @@ def test_sends_correct_payload_structure(monkeypatch):
         publish_to_gist(SAMPLE_NOTEBOOK_JSON, SAMPLE_TITLE)
         payload = mock_post.call_args.kwargs["json"]
         assert "description" in payload
-        assert payload["public"] is True
+        assert payload["public"] is False
         assert "files" in payload
         # The files dict should have exactly one key (the notebook filename)
         assert len(payload["files"]) == 1

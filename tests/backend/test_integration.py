@@ -100,16 +100,17 @@ def test_generate_valid_pdf_returns_job_id():
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def test_stream_invalid_job_id_returns_404():
-    """GET /stream/{job_id} with unknown job_id must return 404."""
-    response = client.get("/stream/nonexistent-job-id-99999")
+def test_stream_unknown_uuid_returns_404():
+    """GET /stream/{job_id} with valid UUID format but unknown job returns 404."""
+    response = client.get("/stream/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 404
 
 
-def test_stream_invalid_uuid_returns_404():
-    """GET /stream with a completely invalid ID must return 404."""
+def test_stream_invalid_uuid_returns_400():
+    """GET /stream with a non-UUID string must return 400."""
     response = client.get("/stream/this-is-not-a-real-job")
-    assert response.status_code == 404
+    assert response.status_code == 400
+    assert "Invalid job ID" in response.json()["detail"]
 
 
 # ─────────────────────────────────────────────────────────────────────────────

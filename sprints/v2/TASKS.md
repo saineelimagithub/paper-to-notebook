@@ -1,6 +1,6 @@
 # Sprint v2 — Tasks
 
-## Status: In Progress
+## Status: Complete
 
 ---
 
@@ -67,6 +67,7 @@
 
 ---
 
-- [ ] Task 10: Switch Gists to secret and validate job_id as UUID (P2)
+- [x] Task 10: Switch Gists to secret and validate job_id as UUID (P2)
   - Acceptance: `gist_publisher.py` changed from `"public": True` to `"public": False`; `/stream/{job_id}` validates that `job_id` matches UUID format (regex or `uuid.UUID()` parse) and returns 400 if invalid; `.gitignore` updated to use global `*.env` pattern (with `!*.env.example` exception); tests verify: gist payload has `public: false`, invalid job_id returns 400, `.env.example` is not gitignored
-  - Files: backend/gist_publisher.py, backend/main.py, .gitignore, backend/tests/test_gist_publisher.py, backend/tests/test_integration.py
+  - Files: backend/gist_publisher.py, backend/main.py, .gitignore, tests/backend/test_gist_publisher.py, tests/backend/test_integration.py
+  - Completed: 2026-03-26 — Gists now secret (public: false); /stream validates UUID format (400 on invalid); .gitignore uses global *.env pattern; 107 total passing; semgrep clean, npm audit clean
