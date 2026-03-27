@@ -20,9 +20,10 @@
 
 ---
 
-- [ ] Task 3: Integration tests with mocked Gemini for /generate → /stream flow (P0)
+- [x] Task 3: Integration tests with mocked Gemini for /generate → /stream flow (P0)
   - Acceptance: New test file `test_api_integration.py` uses `FastAPI TestClient` with `unittest.mock.patch` to mock `genai.Client.models.generate_content` returning a canned JSON response; tests cover: (1) POST /generate with valid PDF + X-Api-Key → 200 + job_id, (2) GET /stream/{job_id} receives SSE events ending in `done` with `notebook_b64` + `colab_url` fields, (3) POST /generate with invalid PDF → 400, (4) POST /generate exceeding rate limit → 429, (5) GET /stream with invalid UUID → 400; at least 5 integration tests; all pass
   - Files: tests/backend/test_api_integration.py
+  - Completed: 2026-03-27 — 8 integration tests: full generate→stream flow with mocked Gemini+Gist, valid PDF job_id, invalid PDF 400, rate limit 429, invalid UUID 400, unknown UUID 404, missing API key 422, SSE done event structure; 168 total passing; semgrep clean
 
 ---
 
