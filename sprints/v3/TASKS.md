@@ -43,9 +43,10 @@
 
 ## Area 2: CI/CD Pipeline
 
-- [ ] Task 6: Install GitHub CLI and create remote repository (P0)
+- [x] Task 6: Install GitHub CLI and create remote repository (P0)
   - Acceptance: `gh` CLI is installed and authenticated (`gh auth status` succeeds); a new GitHub repo is created (public or private, user's choice) via `gh repo create`; local repo has `origin` remote pointing to the new GitHub repo; all existing code is pushed to `main` branch; `gh repo view` shows the repo
   - Files: (no code files — CLI operations only)
+  - Completed: 2026-03-28 — Installed gh 2.89.0 via winget; authenticated as saineelimagithub; created public repo saineelimagithub/paper-to-notebook; pushed all code to origin/master
 
 ---
 
