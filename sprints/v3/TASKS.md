@@ -13,9 +13,10 @@
 
 ---
 
-- [ ] Task 2: Expand unit tests for gist_publisher, job_store, and error_handler (P0)
+- [x] Task 2: Expand unit tests for gist_publisher, job_store, and error_handler (P0)
   - Acceptance: `gist_publisher` tests cover: missing GITHUB_TOKEN returns None, title sanitization (special chars stripped), payload structure (`public: false`, filename format), HTTP error raises; `job_store` tests cover: create_job returns Job, get_job returns None for unknown, Job.push/stream round-trip, JobEvent.findings field; `error_handler` tests cover: all three categories + no leakage of paths/keys/tracebacks confirmed with multiple exception types; total new unit tests ≥ 12; all pass
   - Files: tests/backend/test_gist_publisher.py, tests/backend/test_job_store.py, tests/backend/test_error_handler.py
+  - Completed: 2026-03-27 — 16 new job_store tests, 4 new gist_publisher tests (HTTP error, timeout, filename, description), 7 new error_handler tests (additional classification + leakage); 160 total passing; semgrep clean
 
 ---
 
