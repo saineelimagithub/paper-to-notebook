@@ -15,6 +15,12 @@ frontend/dist/
 
 # Test artifacts
 tests/screenshots/
+test-results/
+
+# Credentials — NEVER commit
+aws_cred*
+*.credentials
+*.pem
 
 # IDE
 .vscode/

@@ -9,6 +9,7 @@ import json
 import re
 from typing import Callable, Awaitable
 
+import httpx
 import nbformat
 from google import genai
 
@@ -136,7 +137,10 @@ async def generate_notebook(
     from input_sanitizer import sanitize_paper_text
     paper = sanitize_paper_text(paper)
 
-    client = genai.Client(api_key=api_key)
+    client = genai.Client(
+        api_key=api_key,
+        http_options={"timeout": 300_000},  # 5-minute timeout for large papers
+    )
 
     await progress("Analyzing core algorithms and theoretical contributions...")
     await asyncio.sleep(0)  # yield to event loop

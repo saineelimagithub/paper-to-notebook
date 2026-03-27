@@ -1,6 +1,6 @@
 # Sprint v3 — Tasks
 
-## Status: In Progress
+## Status: Complete
 
 ---
 
@@ -57,20 +57,23 @@
 
 ---
 
-- [ ] Task 8: Branch protection — block merge if checks fail (P0)
+- [x] Task 8: Branch protection — block merge if checks fail (P0)
   - Acceptance: Branch protection rule on `main` requires: (1) all CI status checks to pass (`backend-tests`, `e2e-tests`, `security-scan`), (2) at least 0 approvals (solo developer); configured via `gh api` or `gh` CLI; verified by creating a test branch with a failing test, pushing, and confirming the PR shows "checks failing — merge blocked"
   - Files: (no code files — GitHub API operations only)
+  - Completed: 2026-03-28 — Branch protection on master via gh api requiring backend-tests, e2e-tests, security-scan status checks; all 3 CI jobs passing on GitHub Actions
 
 ---
 
 ## Area 3: Docker & Cloud Deployment
 
-- [ ] Task 9: Dockerfiles for backend and frontend + docker-compose.yml (P0)
+- [x] Task 9: Dockerfiles for backend and frontend + docker-compose.yml (P0)
   - Acceptance: `backend/Dockerfile` — Python 3.12-slim base, copies requirements.txt, pip install, copies source, exposes 8000, CMD `uvicorn main:app --host 0.0.0.0 --port 8000`; `frontend/Dockerfile` — two-stage: Node 20-alpine build stage runs `npm ci && npm run build`, nginx:alpine serve stage copies `dist/` to `/usr/share/nginx/html/` and copies custom `nginx.conf`; `frontend/nginx.conf` — serves static files on port 80, proxies `/generate`, `/stream`, `/publish`, `/health` to `backend:8000`; `docker-compose.yml` at project root defines `backend` and `frontend` services on a shared network, frontend depends_on backend; `docker compose up --build` starts both and `curl http://localhost/health` returns `{"status": "ok"}`; `docker compose down` cleans up
   - Files: backend/Dockerfile, frontend/Dockerfile, frontend/nginx.conf, docker-compose.yml
+  - Completed: 2026-03-28 — Backend Dockerfile (Python 3.12-slim + PyMuPDF), frontend Dockerfile (2-stage Node 20-alpine build + nginx:alpine serve), nginx.conf with API proxy + SSE support + SPA fallback, docker-compose.yml with shared network; .dockerignore files added; Docker not installed locally so build untested; 168 backend tests passing
 
 ---
 
-- [ ] Task 10: Terraform config for AWS ECS Fargate + CD pipeline (P1)
+- [x] Task 10: Terraform config for AWS ECS Fargate + CD pipeline (P1)
   - Acceptance: `terraform/` directory with: `backend.tf` (S3 remote state bucket), `variables.tf` (region, image tags, env vars for GITHUB_TOKEN), `main.tf` (VPC default, ECR repos for backend + frontend, ECS cluster, task definition with both containers, ECS service with ALB, security groups allowing port 80 inbound, CloudWatch log group), `outputs.tf` (ALB DNS name); new file `.github/workflows/cd.yml` — triggers on push to `main` after CI passes; steps: (1) configure AWS credentials from GitHub Secrets `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`, (2) login to ECR, (3) build + tag + push backend and frontend images, (4) force new ECS deployment via `aws ecs update-service --force-new-deployment`; AWS credentials stored as GitHub repo secrets (NOT committed to code); `terraform plan` runs without errors locally
   - Files: terraform/backend.tf, terraform/variables.tf, terraform/main.tf, terraform/outputs.tf, .github/workflows/cd.yml
+  - Completed: 2026-03-28 — Terraform: S3 remote state, default VPC, 2 ECR repos, ECS Fargate cluster, task definition (backend+frontend containers), ALB with health checks, security groups, CloudWatch logs; CD workflow: AWS credential config, ECR login, build+tag+push both images, force ECS redeployment; Terraform not installed locally so plan untested

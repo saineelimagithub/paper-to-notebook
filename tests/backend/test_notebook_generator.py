@@ -285,7 +285,10 @@ async def test_generate_notebook_passes_api_key():
         paper = {"title": "Test", "abstract": "Abstract", "full_text": "..."}
         await generate_notebook(paper, "AIzaRealKey123", mock_progress)
 
-        mock_genai.Client.assert_called_once_with(api_key="AIzaRealKey123")
+        mock_genai.Client.assert_called_once_with(
+            api_key="AIzaRealKey123",
+            http_options={"timeout": 300_000},
+        )
 
 
 @pytest.mark.asyncio
