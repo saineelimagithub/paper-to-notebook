@@ -1,0 +1,113 @@
+name: CI — Tests & Security
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────
+  # Backend tests (pytest)
+  # ─────────────────────────────────────────────────────────────────
+  backend-tests:
+    name: Backend Tests (pytest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest-asyncio
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          python -m pytest ../tests/backend/ -v --tb=short
+
+  # ─────────────────────────────────────────────────────────────────
+  # E2E tests (Playwright)
+  # ─────────────────────────────────────────────────────────────────
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend
+        run: |
+          cd backend
+          python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 3
+          curl -f http://localhost:8000/health
+
+      - name: Start frontend
+        run: |
+          cd frontend
+          npm run dev &
+          sleep 5
+
+      - name: Run Playwright E2E tests
+        run: npx playwright test tests/e2e/full-flow.spec.js --reporter=list
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: tests/screenshots/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────
+  # Security scan (semgrep + pip-audit)
+  # ─────────────────────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tools
+        run: pip install semgrep pip-audit
+
+      - name: Run semgrep
+        run: semgrep --config auto backend/ frontend/src/ --quiet
+
+      - name: Run pip-audit
+        run: pip-audit -r backend/requirements.txt
+
+      - name: Run npm audit
+        run: cd frontend && npm ci && npm audit

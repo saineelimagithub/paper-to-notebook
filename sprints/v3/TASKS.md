@@ -50,9 +50,10 @@
 
 ---
 
-- [ ] Task 7: GitHub Actions CI workflow — tests + security scans (P0)
+- [x] Task 7: GitHub Actions CI workflow — tests + security scans (P0)
   - Acceptance: New file `.github/workflows/ci.yml` with a workflow that triggers on `push` and `pull_request` to `main`; jobs: (1) `backend-tests` — sets up Python 3.12, installs requirements.txt + pytest, runs `pytest tests/backend/ -v`, (2) `e2e-tests` — sets up Node 20, installs frontend deps + Playwright, starts backend + frontend, runs `npx playwright test` (excludes `@live` tagged tests), uploads `tests/screenshots/` as artifact, (3) `security-scan` — runs `semgrep --config auto backend/ frontend/src/ --quiet` and `pip-audit -r backend/requirements.txt`; all three jobs must pass for PR checks to be green; workflow pushed to GitHub; `gh run list` shows the workflow
   - Files: .github/workflows/ci.yml
+  - Completed: 2026-03-28 — 3-job CI workflow: backend-tests (pytest), e2e-tests (Playwright + screenshot artifacts), security-scan (semgrep + pip-audit + npm audit); triggers on push/PR to master/main
 
 ---
 
