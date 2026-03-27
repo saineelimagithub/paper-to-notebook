@@ -27,9 +27,10 @@
 
 ---
 
-- [ ] Task 4: Playwright E2E tests — full user flow with screenshots (P0)
+- [x] Task 4: Playwright E2E tests — full user flow with screenshots (P0)
   - Acceptance: New test file `tests/e2e/full-flow.spec.js` tests: (1) page loads with title "Paper → Notebook", (2) API key input accepts text and masks it, (3) PDF upload via file chooser shows filename, (4) clicking Generate shows progress display, (5) eventually reaches result card OR error state; screenshots saved to `tests/screenshots/` at each step: `e2e-01-page-loaded.png`, `e2e-02-api-key-entered.png`, `e2e-03-pdf-selected.png`, `e2e-04-generating.png`, `e2e-05-result.png`; update `playwright.config.js` to save screenshots to `tests/screenshots/`; backend mock not required (test can use a fake API key and expect an error state gracefully); test passes in headless mode
   - Files: tests/e2e/full-flow.spec.js, playwright.config.js
+  - Completed: 2026-03-27 — 5 Playwright E2E tests: page load, API key masking, PDF upload filename, generate→result/error flow, idle state; 6 screenshots at each step; playwright.config.js updated with testIgnore for @live tests; npm audit clean
 
 ---
 
