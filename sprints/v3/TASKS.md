@@ -34,9 +34,10 @@
 
 ---
 
-- [ ] Task 5: Live quality test — real Gemini call with "Attention Is All You Need" (P1)
+- [x] Task 5: Live quality test — real Gemini call with "Attention Is All You Need" (P1)
   - Acceptance: New test file `tests/e2e/live-quality.spec.js` with `headed: true` (visible browser); test: (1) navigates to localhost:5173, (2) enters a real Gemini API key from env var `GEMINI_API_KEY`, (3) uploads `C:\Users\U6041256\Downloads\NIPS-2017-attention-is-all-you-need-Paper.pdf`, (4) clicks Generate, (5) waits up to 120s for result card, (6) clicks Download, (7) reads downloaded `.ipynb` file and validates: valid JSON, has `cells` array, ≥ 8 cells, at least one code cell contains `import`, at least one markdown cell contains `#`; screenshots at each step saved to `tests/screenshots/live-*`; test is tagged `@live` so it doesn't run in CI (only manually); passes when run with `npx playwright test tests/e2e/live-quality.spec.js --headed`
   - Files: tests/e2e/live-quality.spec.js
+  - Completed: 2026-03-27 — Live quality test with 7 screenshot steps; auto-skips when GEMINI_API_KEY not set; validates: valid JSON, cells array, ≥8 cells, code cells with import, markdown cells with #; handles security warning acknowledge flow; 3-min timeout
 
 ---
 

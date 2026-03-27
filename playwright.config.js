@@ -15,6 +15,4 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 30_000,
   },
-  /* Ignore tests tagged @live — those run manually only */
-  testIgnore: ["**/live-*.spec.js"],
 });
