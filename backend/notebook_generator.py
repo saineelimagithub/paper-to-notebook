@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from typing import Callable, Awaitable
 
 import nbformat
@@ -95,6 +96,23 @@ The "cells" array must have exactly 10 elements following the structure above (s
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# JSON repair — Gemini often emits invalid backslash escapes in LaTeX/code
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Valid JSON escapes: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
+_INVALID_ESCAPE = re.compile(r'\\(?!["\\/bfnrtu])')
+
+
+def _parse_json_safe(text: str) -> dict:
+    """Parse JSON, repairing invalid backslash escapes on failure."""
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        repaired = _INVALID_ESCAPE.sub(r'\\\\', text)
+        return json.loads(repaired)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Public API
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -150,7 +168,7 @@ Full Paper Text (first 12000 chars):
 
     await progress("Assembling notebook cells...")
 
-    result = json.loads(response.text)
+    result = _parse_json_safe(response.text)
     notebook = build_notebook(result["cells"])
     summary_bullets = result.get("summary_bullets", [])
 
