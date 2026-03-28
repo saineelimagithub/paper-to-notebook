@@ -122,6 +122,7 @@ resource "aws_lb" "main" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = data.aws_subnets.default.ids
+  idle_timeout       = 300 # SSE streams need long-lived connections
 }
 
 resource "aws_lb_target_group" "frontend" {

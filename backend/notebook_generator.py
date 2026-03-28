@@ -158,17 +158,35 @@ Full Paper Text (first 12000 chars):
 
     await progress("Mapping methodology to implementable components...")
 
-    response = await asyncio.to_thread(
-        client.models.generate_content,
-        model="gemini-2.5-flash",
-        contents=user_content,
-        config={
-            "system_instruction": SYSTEM_PROMPT,
-            "response_mime_type": "application/json",
-            "temperature": 0.2,
-            "max_output_tokens": 65536,
-        },
-    )
+    async def _keepalive():
+        """Send periodic progress events to prevent ALB/proxy idle timeout."""
+        messages = [
+            "Generating code implementations...",
+            "Building theoretical annotations...",
+            "Structuring notebook sections...",
+            "Optimizing code examples...",
+        ]
+        i = 0
+        while True:
+            await asyncio.sleep(15)
+            await progress(messages[i % len(messages)])
+            i += 1
+
+    keepalive_task = asyncio.create_task(_keepalive())
+    try:
+        response = await asyncio.to_thread(
+            client.models.generate_content,
+            model="gemini-2.5-flash",
+            contents=user_content,
+            config={
+                "system_instruction": SYSTEM_PROMPT,
+                "response_mime_type": "application/json",
+                "temperature": 0.2,
+                "max_output_tokens": 65536,
+            },
+        )
+    finally:
+        keepalive_task.cancel()
 
     await progress("Assembling notebook cells...")
 
